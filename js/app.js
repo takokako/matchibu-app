@@ -2,10 +2,17 @@
   "use strict";
 
   const VISITED_KEY = "matchbu_visited_overrides_v1";
-  const GENRE_ORDER = [
-    "クッパ・スープ", "麺類", "焼肉・肉料理", "海鮮・刺身",
-    "鍋・チゲ", "軽食・屋台グルメ", "市場・買い物・両替", "その他",
+  const GENRE_META = [
+    { name: "クッパ・スープ", icon: "🍲" },
+    { name: "麺類", icon: "🍜" },
+    { name: "焼肉・肉料理", icon: "🥩" },
+    { name: "海鮮・刺身", icon: "🐟" },
+    { name: "鍋・チゲ", icon: "🫕" },
+    { name: "軽食・屋台グルメ", icon: "🍢" },
+    { name: "市場・買い物・両替", icon: "🏪" },
+    { name: "その他", icon: "📍" },
   ];
+  const SOURCE_COLORS = ["#c81e2c", "#8a4fc8", "#1f8a5f", "#e0592a", "#2f7fd1", "#c8788a", "#5a8a2f", "#b06a1f"];
 
   const state = {
     search: "",
@@ -13,12 +20,11 @@
     stationKey: null, // `${line}|${area_ja}` or null for all
     visitedOnly: false,
     source: "",
-    view: "list",
+    panelMode: "results", // "results" | "filters"
   };
 
   let visitedOverrides = loadVisitedOverrides();
   let mapProvider = null;
-  let mapInitialized = false;
 
   function loadVisitedOverrides() {
     try {
@@ -83,98 +89,100 @@
     return RESTAURANTS.filter(matchesFilters);
   }
 
+  function lineColorSafe(line) {
+    return { "1": "#e2231a", "2": "#34a853", "3": "#a9812d" }[line] || "#777";
+  }
+
+  // ---------- Area chips ----------
+  function renderAreaChips() {
+    const container = document.getElementById("area-chips");
+    const lineNames = { "1": "1号線", "2": "2号線", "3": "3号線" };
+    let html = `<button class="chip chip-all active" data-key="">すべて</button>`;
+    STATIONS.forEach((s) => {
+      const key = `${s.line}|${s.area_ja}`;
+      html += `<button class="chip" data-key="${escapeHtml(key)}" title="${escapeHtml(lineNames[s.line] || "")}">` +
+        `<span class="card-line-dot" style="background:${lineColorSafe(s.line)}"></span>${escapeHtml(s.area_ja)}</button>`;
+    });
+    container.innerHTML = html;
+    container.querySelectorAll(".chip").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.stationKey = btn.dataset.key || null;
+        container.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+        btn.classList.add("active");
+        if (state.stationKey) focusStationOnMap(state.stationKey);
+        refresh();
+      });
+    });
+  }
+
   // ---------- Genre chips ----------
   function allGenresPresent() {
     const set = new Set();
     RESTAURANTS.forEach((r) => (r.genre || []).forEach((g) => set.add(g)));
-    const ordered = GENRE_ORDER.filter((g) => set.has(g));
-    set.forEach((g) => { if (!ordered.includes(g)) ordered.push(g); });
-    return ordered;
+    return GENRE_META.filter((g) => set.has(g.name));
   }
 
   function renderGenreChips() {
     const container = document.getElementById("genre-chips");
     const genres = allGenresPresent();
-    container.innerHTML = genres.map((g) => (
-      `<button class="chip" data-genre="${escapeHtml(g)}">${escapeHtml(g)}</button>`
+    let html = `<button class="chip chip-all active" data-genre="">すべて</button>`;
+    html += genres.map((g) => (
+      `<button class="chip" data-genre="${escapeHtml(g.name)}"><span aria-hidden="true">${g.icon}</span>${escapeHtml(g.name)}</button>`
     )).join("");
+    container.innerHTML = html;
+
+    function syncAllChipState() {
+      container.querySelector('.chip-all').classList.toggle("active", state.genres.size === 0);
+    }
+
     container.querySelectorAll(".chip").forEach((btn) => {
       btn.addEventListener("click", () => {
         const g = btn.dataset.genre;
-        if (state.genres.has(g)) { state.genres.delete(g); btn.classList.remove("active"); }
-        else { state.genres.add(g); btn.classList.add("active"); }
+        if (g === "") {
+          state.genres.clear();
+          container.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+          btn.classList.add("active");
+        } else {
+          if (state.genres.has(g)) { state.genres.delete(g); btn.classList.remove("active"); }
+          else { state.genres.add(g); btn.classList.add("active"); }
+          syncAllChipState();
+        }
         refresh();
       });
     });
   }
 
-  // ---------- Source filter ----------
-  function renderSourceOptions() {
-    const select = document.getElementById("source-filter");
+  // ---------- Source chips ----------
+  function renderSourceChips() {
+    const container = document.getElementById("source-chips");
     const counts = new Map();
     RESTAURANTS.forEach((r) => {
       if (r.source) counts.set(r.source, (counts.get(r.source) || 0) + 1);
     });
     const sources = Array.from(counts.keys()).sort((a, b) => counts.get(b) - counts.get(a));
-    select.innerHTML = '<option value="">出典・番組: すべて</option>' +
-      sources.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)} (${counts.get(s)})</option>`).join("");
-    select.addEventListener("change", () => {
-      state.source = select.value;
-      refresh();
-    });
-  }
-
-  // ---------- Station picker ----------
-  function renderStationSheet() {
-    const listEl = document.getElementById("station-list");
-    const byLine = {};
-    STATIONS.forEach((s) => {
-      if (!byLine[s.line]) byLine[s.line] = [];
-      byLine[s.line].push(s);
-    });
-    const lineNames = { "1": "1号線", "2": "2号線", "3": "3号線" };
-    let html = "";
-    Object.keys(byLine).sort().forEach((line) => {
-      html += `<div class="station-group-title"><span class="card-line-dot" style="background:${lineColorSafe(line)}"></span>${escapeHtml(lineNames[line] || line)}</div>`;
-      byLine[line].forEach((s) => {
-        const key = `${s.line}|${s.area_ja}`;
-        const koLabel = s.area_ko ? `<span class="station-item-sub">${escapeHtml(s.area_ko)}</span>` : "";
-        html += `<button class="station-item" data-key="${escapeHtml(key)}" data-lat-lon="1">${escapeHtml(s.area_ja)}${koLabel}</button>`;
-      });
-    });
-    listEl.innerHTML = html;
-    listEl.querySelectorAll(".station-item").forEach((btn) => {
+    let html = `<button class="chip chip-all active" data-source="">すべて</button>`;
+    html += sources.map((s, i) => {
+      const color = SOURCE_COLORS[i % SOURCE_COLORS.length];
+      return `<button class="chip chip-source" style="--chip-color:${color}" data-source="${escapeHtml(s)}">${escapeHtml(s)} (${counts.get(s)})</button>`;
+    }).join("");
+    container.innerHTML = html;
+    container.querySelectorAll(".chip").forEach((btn) => {
       btn.addEventListener("click", () => {
-        state.stationKey = btn.dataset.key;
-        closeStationSheet();
+        state.source = btn.dataset.source;
+        container.querySelectorAll(".chip").forEach((c) => c.classList.remove("active"));
+        btn.classList.add("active");
         refresh();
-        focusStationOnMap(state.stationKey);
       });
     });
-  }
-
-  function lineColorSafe(line) {
-    return { "1": "#f0631e", "2": "#3fa74a", "3": "#a9812d" }[line] || "#777";
   }
 
   function focusStationOnMap(stationKey) {
-    if (!stationKey) return;
+    if (!stationKey || !mapProvider) return;
     const items = RESTAURANTS.filter((r) => `${r.line}|${r.area_ja}` === stationKey && r.lat != null);
     if (items.length === 0) return;
-    if (state.view !== "map") switchView("map");
-    ensureMapInit();
     const avgLat = items.reduce((s, r) => s + r.lat, 0) / items.length;
     const avgLon = items.reduce((s, r) => s + r.lon, 0) / items.length;
     mapProvider.panTo(avgLat, avgLon, 15);
-  }
-
-  function openStationSheet() {
-    document.getElementById("station-sheet").classList.remove("hidden");
-    document.getElementById("backdrop").classList.remove("hidden");
-  }
-  function closeStationSheet() {
-    document.getElementById("station-sheet").classList.add("hidden");
-    document.getElementById("backdrop").classList.add("hidden");
   }
 
   // ---------- List rendering ----------
@@ -188,6 +196,7 @@
       const visited = isVisited(item);
       const genreBadges = (item.genre || []).map((g) => `<span class="badge">${escapeHtml(g)}</span>`).join("");
       const sourceBadge = item.source ? `<span class="badge badge-source">${escapeHtml(item.source)}</span>` : "";
+      const notesLine = item.notes ? `<div class="card-notes"><span class="card-line-icon" aria-hidden="true">📝</span>${escapeHtml(item.notes)}</div>` : "";
       return `
         <button class="card" data-id="${item.id}">
           <div class="card-top">
@@ -197,7 +206,8 @@
             </div>
             ${visited ? '<span class="card-visited">訪問済み</span>' : ""}
           </div>
-          <div class="card-menu">${escapeHtml(item.menu || "")}</div>
+          <div class="card-menu"><span class="card-line-icon" aria-hidden="true">🍽️</span>${escapeHtml(item.menu || "")}</div>
+          ${notesLine}
           <div class="card-badges">${genreBadges}${sourceBadge}</div>
         </button>
       `;
@@ -207,18 +217,17 @@
     });
   }
 
-  // ---------- Map rendering ----------
+  // ---------- Map ----------
   function ensureMapInit() {
-    if (mapInitialized) return;
+    if (mapProvider) return;
     mapProvider = new LeafletMapProvider("map");
     mapProvider.init([35.1595, 129.0756], 12); // Busan city center
-    mapInitialized = true;
+    mapProvider.renderTransitLayer(TRANSIT_LINES, LANDMARKS);
   }
 
   function renderMap(items) {
     ensureMapInit();
     mapProvider.setMarkers(items.filter((i) => i.lat != null), (id) => openDetail(id));
-    setTimeout(() => mapProvider.invalidateSize(), 50);
   }
 
   // ---------- Detail sheet ----------
@@ -293,32 +302,44 @@
     document.getElementById("backdrop").classList.add("hidden");
   }
 
-  // ---------- View switching ----------
-  function switchView(view) {
-    state.view = view;
-    document.querySelectorAll(".view-tab").forEach((btn) => {
-      btn.classList.toggle("active", btn.dataset.view === view);
-    });
-    document.getElementById("list-view").hidden = view !== "list";
-    document.getElementById("map-view").hidden = view !== "map";
-    if (view === "map") {
-      renderMap(getFiltered());
+  // ---------- Panel mode (filters <-> results) ----------
+  function setPanelMode(mode) {
+    state.panelMode = mode;
+    const filtersSection = document.getElementById("filters-section");
+    const listView = document.getElementById("list-view");
+    const btn = document.getElementById("panel-mode-btn");
+    const icon = document.getElementById("panel-mode-icon");
+    const label = document.getElementById("panel-mode-label");
+    if (mode === "filters") {
+      filtersSection.hidden = false;
+      listView.hidden = true;
+      btn.classList.add("active");
+      icon.textContent = "✕";
+      label.textContent = "閉じる";
+    } else {
+      filtersSection.hidden = true;
+      listView.hidden = false;
+      btn.classList.remove("active");
+      icon.textContent = "⚙️";
+      label.textContent = "フィルター";
     }
   }
 
   // ---------- Refresh ----------
   function refresh() {
     const filtered = getFiltered();
-    document.getElementById("result-count").textContent = `${filtered.length}件のお店`;
+    document.getElementById("result-count").textContent = `${filtered.length} / ${RESTAURANTS.length} 店舗`;
     renderList(filtered);
-    if (state.view === "map") renderMap(filtered);
+    renderMap(filtered);
   }
 
-  // ---------- Wire up static controls ----------
+  // ---------- Init ----------
   function init() {
+    ensureMapInit();
+    renderAreaChips();
     renderGenreChips();
-    renderSourceOptions();
-    renderStationSheet();
+    renderSourceChips();
+    setPanelMode("results");
 
     document.getElementById("search-input").addEventListener("input", (e) => {
       state.search = e.target.value.trim();
@@ -338,28 +359,21 @@
       state.source = "";
       document.getElementById("search-input").value = "";
       document.getElementById("visited-filter").checked = false;
-      document.getElementById("source-filter").value = "";
+      document.querySelectorAll("#area-chips .chip").forEach((c) => c.classList.remove("active"));
+      document.querySelector("#area-chips .chip-all").classList.add("active");
       document.querySelectorAll("#genre-chips .chip").forEach((c) => c.classList.remove("active"));
+      document.querySelector("#genre-chips .chip-all").classList.add("active");
+      document.querySelectorAll("#source-chips .chip").forEach((c) => c.classList.remove("active"));
+      document.querySelector("#source-chips .chip-all").classList.add("active");
       refresh();
     });
 
-    document.querySelectorAll(".view-tab").forEach((btn) => {
-      btn.addEventListener("click", () => switchView(btn.dataset.view));
-    });
-
-    document.getElementById("station-picker-btn").addEventListener("click", openStationSheet);
-    document.getElementById("station-close").addEventListener("click", closeStationSheet);
-    document.getElementById("station-all-btn").addEventListener("click", () => {
-      state.stationKey = null;
-      closeStationSheet();
-      refresh();
+    document.getElementById("panel-mode-btn").addEventListener("click", () => {
+      setPanelMode(state.panelMode === "filters" ? "results" : "filters");
     });
 
     document.getElementById("detail-close").addEventListener("click", closeDetail);
-    document.getElementById("backdrop").addEventListener("click", () => {
-      closeDetail();
-      closeStationSheet();
-    });
+    document.getElementById("backdrop").addEventListener("click", closeDetail);
 
     refresh();
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>マッチブ - 釜山ベータ</title>
-<meta name="theme-color" content="#1f8a5f">
+<meta name="theme-color" content="#c81e2c">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon.svg">
@@ -15,48 +15,58 @@
 
 <header class="app-header">
   <div class="app-title">
-    <span class="app-title-main">マッチブ</span>
-    <span class="app-title-sub">釜山ベータ</span>
+    <span class="app-title-icon" aria-hidden="true">🐙</span>
+    <span class="app-title-main">釜山マッチブ</span>
+    <span class="app-title-sub">부산 맛집 가이드</span>
   </div>
-  <button id="station-picker-btn" class="icon-btn" aria-label="エリアで選ぶ">
-    <span class="pin-emoji" aria-hidden="true">📍</span><span class="btn-label">エリア</span>
-  </button>
+  <div class="app-count" id="result-count">56 / 56 店舗</div>
 </header>
 
-<div class="search-bar">
-  <input type="search" id="search-input" placeholder="店名・料理名・番組名などで検索" autocomplete="off">
-</div>
+<div class="app-shell">
 
-<div class="filter-bar" id="genre-chips" role="group" aria-label="ジャンルで絞り込み"></div>
-
-<div class="filter-row">
-  <select id="source-filter" aria-label="番組・出典で絞り込み">
-    <option value="">出典・番組: すべて</option>
-  </select>
-  <label class="visited-toggle">
-    <input type="checkbox" id="visited-filter">
-    <span>訪問済みのみ</span>
-  </label>
-  <button id="clear-filters-btn" class="text-btn">条件クリア</button>
-</div>
-
-<div class="result-count" id="result-count"></div>
-
-<main>
-  <section id="list-view" class="list-view"></section>
-  <section id="map-view" class="map-view" hidden>
+  <div class="map-container">
     <div id="map"></div>
-  </section>
-</main>
+  </div>
 
-<nav class="view-tabs">
-  <button class="view-tab active" data-view="list">
-    <span aria-hidden="true">📋</span><span>一覧</span>
-  </button>
-  <button class="view-tab" data-view="map">
-    <span aria-hidden="true">🗺️</span><span>地図</span>
-  </button>
-</nav>
+  <div class="panel">
+    <div class="panel-toolbar">
+      <div class="search-bar">
+        <input type="search" id="search-input" placeholder="料理名(例:ナッコプセ)・店名・番組名で検索" autocomplete="off">
+      </div>
+      <button id="panel-mode-btn" class="filter-toggle-btn">
+        <span id="panel-mode-icon" aria-hidden="true">⚙️</span><span id="panel-mode-label">フィルター</span>
+      </button>
+    </div>
+
+    <div id="filters-section" class="filters-section" hidden>
+      <div class="filter-group">
+        <div class="filter-group-title">エリア</div>
+        <div class="filter-bar" id="area-chips" role="group" aria-label="エリアで絞り込み"></div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-title">料理カテゴリ</div>
+        <div class="filter-bar" id="genre-chips" role="group" aria-label="ジャンルで絞り込み"></div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-group-title">TV・出典</div>
+        <div class="filter-bar" id="source-chips" role="group" aria-label="出典で絞り込み"></div>
+      </div>
+
+      <div class="filter-row">
+        <label class="visited-toggle">
+          <input type="checkbox" id="visited-filter">
+          <span>訪問済みのみ</span>
+        </label>
+        <button id="clear-filters-btn" class="text-btn">条件クリア</button>
+      </div>
+    </div>
+
+    <section id="list-view" class="list-view"></section>
+  </div>
+
+</div>
 
 <div id="backdrop" class="backdrop hidden"></div>
 
@@ -66,18 +76,9 @@
   <div class="sheet-body" id="detail-body"></div>
 </div>
 
-<div id="station-sheet" class="sheet hidden" role="dialog" aria-modal="true" aria-labelledby="station-sheet-title">
-  <div class="sheet-handle"></div>
-  <button class="sheet-close" id="station-close" aria-label="閉じる">✕</button>
-  <div class="sheet-body">
-    <h2 id="station-sheet-title" class="sheet-title">エリア・駅で選ぶ</h2>
-    <button class="station-item station-item-all" id="station-all-btn">すべてのエリア</button>
-    <div id="station-list"></div>
-  </div>
-</div>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="js/data.js"></script>
+<script src="js/transit-data.js"></script>
 <script src="js/map-provider.js"></script>
 <script src="js/app.js"></script>
 </body>

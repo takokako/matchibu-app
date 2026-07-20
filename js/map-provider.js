@@ -5,35 +5,60 @@
 // available (see docs/naver-maps-setup.md), implement a NaverMapProvider with the
 // same method signatures and swap the instantiation in app.js.
 
-const LINE_COLORS = {
-  "1": "#f0631e",
-  "2": "#3fa74a",
-  "3": "#a9812d",
-};
+const LINE_COLORS = { "1": "#e2231a", "2": "#34a853", "3": "#a9812d" };
 const DEFAULT_PIN_COLOR = "#555555";
 
-function lineColor(line) {
-  return LINE_COLORS[line] || DEFAULT_PIN_COLOR;
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
 }
 
-function makeDivIcon(item) {
-  const color = lineColor(item.line);
-  const shape = item.type === "spot" ? "50% 50% 50% 0" : "50%";
-  const rotate = item.type === "spot" ? "rotate(-45deg)" : "none";
+function makeRestaurantIcon(item) {
+  const isSpot = item.type === "spot";
+  const bg = isSpot ? "#555555" : "#c81e2c";
   return L.divIcon({
     className: "matchbu-pin",
-    html: `<span style="
-        display:block;
-        width:16px;height:16px;
-        background:${color};
+    html: `<div style="
+        width:22px;height:22px;
+        background:${bg};
         border:2px solid #fff;
-        border-radius:${shape};
-        transform:${rotate};
-        box-shadow:0 1px 4px rgba(0,0,0,0.4);
-      "></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
+        border-radius:50% 50% 50% 0;
+        transform:rotate(-45deg);
+        box-shadow:0 1px 4px rgba(0,0,0,0.45);
+      "></div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 22],
+    popupAnchor: [0, -20],
+  });
+}
+
+function makeStationDotIcon(line) {
+  const color = LINE_COLORS[line] || DEFAULT_PIN_COLOR;
+  return L.divIcon({
+    className: "matchbu-station-dot",
+    html: `<span style="display:block;width:7px;height:7px;background:${color};border:1px solid #fff;border-radius:50%;"></span>`,
+    iconSize: [7, 7],
+    iconAnchor: [3, 3],
+  });
+}
+
+function makeStationBadgeIcon(line, label) {
+  const color = LINE_COLORS[line] || DEFAULT_PIN_COLOR;
+  return L.divIcon({
+    className: "matchbu-station-badge",
+    html: `<span class="station-badge" style="border:1.5px solid ${color};color:${color};">${escapeHtml(label)}</span>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  });
+}
+
+function makeLandmarkIcon(landmark) {
+  return L.divIcon({
+    className: "matchbu-landmark",
+    html: `<span class="landmark-badge"><span aria-hidden="true">${landmark.icon}</span>${escapeHtml(landmark.name_ja)}</span>`,
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
   });
 }
 
@@ -54,6 +79,50 @@ class LeafletMapProvider {
     }).addTo(this.map);
   }
 
+  renderTransitLayer(transitLines, landmarks) {
+    if (!this.map) return;
+
+    // Line polylines + station dots (bottom layer, static context).
+    Object.keys(transitLines).forEach((lineRef) => {
+      const stations = transitLines[lineRef];
+      const color = LINE_COLORS[lineRef] || DEFAULT_PIN_COLOR;
+      const latlngs = stations.map((s) => [s.lat, s.lon]);
+      L.polyline(latlngs, { color, weight: 3, opacity: 0.75 }).addTo(this.map);
+
+      stations.forEach((s) => {
+        if (s.highlighted) {
+          L.marker([s.lat, s.lon], { icon: makeStationBadgeIcon(lineRef, s.area_ja), interactive: false }).addTo(this.map);
+          L.circleMarker([s.lat, s.lon], { radius: 4, color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 1 }).addTo(this.map);
+        } else {
+          L.marker([s.lat, s.lon], { icon: makeStationDotIcon(lineRef), interactive: false }).addTo(this.map);
+        }
+      });
+    });
+
+    // Landmarks (above lines, below restaurant pins).
+    landmarks.forEach((lm) => {
+      L.marker([lm.lat, lm.lon], { icon: makeLandmarkIcon(lm), interactive: false }).addTo(this.map);
+    });
+
+    this.addLegend();
+  }
+
+  addLegend() {
+    const legend = L.control({ position: "bottomleft" });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create("div", "map-legend");
+      div.innerHTML = `
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['1']}"></span>1号線</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['2']}"></span>2号線</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['3']}"></span>3号線</div>
+        <div class="map-legend-row"><span class="map-legend-dot" style="background:#c81e2c"></span>お店</div>
+      `;
+      L.DomEvent.disableClickPropagation(div);
+      return div;
+    };
+    legend.addTo(this.map);
+  }
+
   clearMarkers() {
     this.markers.forEach((m) => this.map.removeLayer(m));
     this.markers = [];
@@ -63,7 +132,7 @@ class LeafletMapProvider {
     this.clearMarkers();
     items.forEach((item) => {
       if (item.lat == null || item.lon == null) return;
-      const marker = L.marker([item.lat, item.lon], { icon: makeDivIcon(item) });
+      const marker = L.marker([item.lat, item.lon], { icon: makeRestaurantIcon(item), zIndexOffset: 1000 });
       const approx = item.geo_precision === "dong_level" ? "（位置はおおよそ）" : "";
       marker.bindPopup(
         `<div class="map-popup-name">${escapeHtml(item.name)}${approx}</div>` +
@@ -84,12 +153,6 @@ class LeafletMapProvider {
     });
   }
 
-  fitToMarkers() {
-    if (this.markers.length === 0) return;
-    const group = L.featureGroup(this.markers);
-    this.map.fitBounds(group.getBounds().pad(0.2));
-  }
-
   panTo(lat, lon, zoom) {
     if (!this.map) return;
     this.map.setView([lat, lon], zoom || 15);
@@ -98,10 +161,4 @@ class LeafletMapProvider {
   invalidateSize() {
     if (this.map) this.map.invalidateSize();
   }
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]));
 }
