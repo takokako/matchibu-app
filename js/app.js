@@ -14,6 +14,10 @@
   ];
   const SOURCE_COLORS = ["#c81e2c", "#8a4fc8", "#1f8a5f", "#e0592a", "#2f7fd1", "#c8788a", "#5a8a2f", "#b06a1f"];
 
+  // Published Google Sheet CSV URL (File > Share > Publish to web > CSV).
+  // Leave empty to use only the bundled js/data.js. See docs/sheet-sync.md.
+  const SHEET_CSV_URL = "";
+
   const state = {
     search: "",
     genres: new Set(),
@@ -29,9 +33,14 @@
   let genreIconMap = {};
   GENRE_META.forEach((g) => { genreIconMap[g.name] = g.icon; });
 
+  // RESTAURANTS (from js/data.js) is the geocoded/genre-tagged base dataset.
+  // RESTAURANTS_DATA is what the app actually renders: the base dataset,
+  // optionally overlaid with live edits from a published Google Sheet.
+  let RESTAURANTS_DATA = RESTAURANTS;
+
   function buildSourceColorMap() {
     const counts = new Map();
-    RESTAURANTS.forEach((r) => {
+    RESTAURANTS_DATA.forEach((r) => {
       if (r.source) counts.set(r.source, (counts.get(r.source) || 0) + 1);
     });
     const sources = Array.from(counts.keys()).sort((a, b) => counts.get(b) - counts.get(a));
@@ -99,7 +108,7 @@
   }
 
   function getFiltered() {
-    return RESTAURANTS.filter(matchesFilters);
+    return RESTAURANTS_DATA.filter(matchesFilters);
   }
 
   function lineColorSafe(line) {
@@ -131,7 +140,7 @@
   // ---------- Genre chips ----------
   function allGenresPresent() {
     const set = new Set();
-    RESTAURANTS.forEach((r) => (r.genre || []).forEach((g) => set.add(g)));
+    RESTAURANTS_DATA.forEach((r) => (r.genre || []).forEach((g) => set.add(g)));
     return GENRE_META.filter((g) => set.has(g.name));
   }
 
@@ -187,7 +196,7 @@
 
   function focusStationOnMap(stationKey) {
     if (!stationKey || !mapProvider) return;
-    const items = RESTAURANTS.filter((r) => `${r.line}|${r.area_ja}` === stationKey && r.lat != null);
+    const items = RESTAURANTS_DATA.filter((r) => `${r.line}|${r.area_ja}` === stationKey && r.lat != null);
     if (items.length === 0) return;
     const avgLat = items.reduce((s, r) => s + r.lat, 0) / items.length;
     const avgLon = items.reduce((s, r) => s + r.lon, 0) / items.length;
@@ -249,7 +258,7 @@
   }
 
   function focusOnMap(id) {
-    const item = RESTAURANTS.find((r) => r.id === id);
+    const item = RESTAURANTS_DATA.find((r) => r.id === id);
     if (!item || item.lat == null) {
       openDetail(id);
       return;
@@ -261,7 +270,7 @@
 
   // ---------- Detail sheet ----------
   function openDetail(id) {
-    const item = RESTAURANTS.find((r) => r.id === id);
+    const item = RESTAURANTS_DATA.find((r) => r.id === id);
     if (!item) return;
     const body = document.getElementById("detail-body");
     const visited = isVisited(item);
@@ -410,19 +419,137 @@
     });
   }
 
+  // ---------- Google Sheet sync ----------
+  // Parses standard CSV (as exported by Google Sheets' "Publish to web"),
+  // handling quoted fields with embedded commas/newlines/escaped quotes.
+  function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (inQuotes) {
+        if (c === '"') {
+          if (text[i + 1] === '"') { field += '"'; i++; } else { inQuotes = false; }
+        } else {
+          field += c;
+        }
+      } else if (c === '"') {
+        inQuotes = true;
+      } else if (c === ",") {
+        row.push(field); field = "";
+      } else if (c === "\r") {
+        // skip
+      } else if (c === "\n") {
+        row.push(field); rows.push(row); row = []; field = "";
+      } else {
+        field += c;
+      }
+    }
+    if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+    if (rows.length === 0) return [];
+    const header = rows[0].map((h) => h.trim());
+    return rows.slice(1)
+      .filter((r) => r.some((c) => c.trim() !== ""))
+      .map((r) => {
+        const obj = {};
+        header.forEach((h, idx) => { obj[h] = (r[idx] || "").trim(); });
+        return obj;
+      });
+  }
+
+  function parseSheetBool(v) {
+    if (!v) return false;
+    const s = String(v).trim().toUpperCase();
+    return s === "TRUE" || s === "1" || s === "YES" || s === "○" || s === "✓";
+  }
+
+  // Merge live sheet rows onto the static (geocoded + genre-tagged) base
+  // dataset, matched by store name. Editable fields come from the sheet;
+  // genre/coordinates always come from the base dataset since those need
+  // the offline pipeline (see docs/sheet-sync.md). Rows with a name not
+  // found in the base dataset are new additions - they're shown in search
+  // results but have no map position or genre until a re-sync happens.
+  function mergeSheetRows(sheetRows) {
+    const byName = {};
+    RESTAURANTS.forEach((r) => { byName[r.name] = r; });
+    const merged = [];
+    sheetRows.forEach((row, idx) => {
+      const name = row.name_ko && row.name_ko.trim();
+      if (!name) return;
+      const base = byName[name];
+      if (base) {
+        merged.push({
+          ...base,
+          line: row.line ? row.line.replace(/号線/, "").trim() || base.line : base.line,
+          area_ja: row.area_ja || base.area_ja,
+          area_ko: row.area_ko || base.area_ko,
+          naver_url: row.naver_url || base.naver_url,
+          google_url: row.google_url || base.google_url,
+          address_road: row.address_road || base.address_road,
+          address_lot: row.address_lot || base.address_lot,
+          menu: row.menu || base.menu,
+          source: row.source || base.source,
+          notes: row.notes || base.notes,
+          visited: row.visited ? parseSheetBool(row.visited) : base.visited,
+        });
+      } else {
+        merged.push({
+          id: "sheet_" + idx,
+          seq: 9000 + idx,
+          type: "food",
+          visited: parseSheetBool(row.visited),
+          line: row.line ? row.line.replace(/号線/, "").trim() : "",
+          area_ja: row.area_ja || "",
+          area_ko: row.area_ko || "",
+          name: name,
+          genre: ["その他"],
+          menu: row.menu || "",
+          source: row.source || null,
+          notes: (row.notes ? row.notes + " " : "") + "⚠️新規追加分・地図未反映(Claudeに再同期を依頼してください)",
+          address_road: row.address_road || null,
+          address_lot: row.address_lot || null,
+          naver_url: row.naver_url || null,
+          google_url: row.google_url || null,
+          lat: null,
+          lon: null,
+          geo_precision: "unmapped",
+        });
+      }
+    });
+    return merged;
+  }
+
+  async function trySyncFromSheet() {
+    if (!SHEET_CSV_URL) return;
+    try {
+      const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const text = await res.text();
+      const rows = parseCsv(text);
+      if (rows.length === 0) throw new Error("empty sheet");
+      RESTAURANTS_DATA = mergeSheetRows(rows);
+    } catch (e) {
+      console.warn("Sheet sync failed, using bundled data.js instead.", e);
+      RESTAURANTS_DATA = RESTAURANTS;
+    }
+  }
+
   // ---------- Refresh ----------
   function refresh() {
     const filtered = getFiltered();
-    document.getElementById("result-count").textContent = `${filtered.length} / ${RESTAURANTS.length} 店舗`;
+    document.getElementById("result-count").textContent = `${filtered.length} / ${RESTAURANTS_DATA.length} 店舗`;
     renderActiveFiltersBar();
     renderList(filtered);
     renderMap(filtered);
   }
 
   // ---------- Init ----------
-  function init() {
+  async function init() {
     ensureMapInit();
     renderAreaChips();
+    await trySyncFromSheet();
     renderGenreChips();
     renderSourceChips();
     setPanelMode("filters");
