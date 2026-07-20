@@ -1,0 +1,14 @@
+{
+  "name": "マッチブ - 釜山ベータ",
+  "short_name": "マッチブ",
+  "description": "保存した釜山のお気に入りのお店を、駅・ジャンルで一覧・地図から探せるベータアプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f5f0",
+  "theme_color": "#1f8a5f",
+  "lang": "ja",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
