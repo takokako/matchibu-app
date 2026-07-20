@@ -198,21 +198,27 @@
       const sourceBadge = item.source ? `<span class="badge badge-source">${escapeHtml(item.source)}</span>` : "";
       const notesLine = item.notes ? `<div class="card-notes"><span class="card-line-icon" aria-hidden="true">📝</span>${escapeHtml(item.notes)}</div>` : "";
       return `
-        <button class="card" data-id="${item.id}">
-          <div class="card-top">
-            <div>
-              <div class="card-name">${escapeHtml(item.name)}</div>
-              <div class="card-area"><span class="card-line-dot" style="background:${lineColorSafe(item.line)}"></span>${escapeHtml(item.area_ja)}</div>
+        <div class="card">
+          <button class="card-main" data-id="${item.id}">
+            <div class="card-top">
+              <div>
+                <div class="card-name">${escapeHtml(item.name)}</div>
+                <div class="card-area"><span class="card-line-dot" style="background:${lineColorSafe(item.line)}"></span>${escapeHtml(item.area_ja)}</div>
+              </div>
+              ${visited ? '<span class="card-visited">訪問済み</span>' : ""}
             </div>
-            ${visited ? '<span class="card-visited">訪問済み</span>' : ""}
+            <div class="card-menu"><span class="card-line-icon" aria-hidden="true">🍽️</span>${escapeHtml(item.menu || "")}</div>
+            ${notesLine}
+            <div class="card-badges">${genreBadges}${sourceBadge}</div>
+          </button>
+          <div class="card-links">
+            <a class="card-link-btn card-link-naver" href="${item.naver_url || "#"}" target="_blank" rel="noopener">📍 Naver</a>
+            <a class="card-link-btn card-link-google" href="${buildGoogleUrl(item)}" target="_blank" rel="noopener">📍 Google</a>
           </div>
-          <div class="card-menu"><span class="card-line-icon" aria-hidden="true">🍽️</span>${escapeHtml(item.menu || "")}</div>
-          ${notesLine}
-          <div class="card-badges">${genreBadges}${sourceBadge}</div>
-        </button>
+        </div>
       `;
     }).join("");
-    el.querySelectorAll(".card").forEach((card) => {
+    el.querySelectorAll(".card-main").forEach((card) => {
       card.addEventListener("click", () => openDetail(card.dataset.id));
     });
   }
