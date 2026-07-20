@@ -33,12 +33,12 @@
       <div class="search-bar">
         <input type="search" id="search-input" placeholder="料理名(例:ナッコプセ)・店名・番組名で検索" autocomplete="off">
       </div>
-      <button id="panel-mode-btn" class="filter-toggle-btn">
-        <span id="panel-mode-icon" aria-hidden="true">⚙️</span><span id="panel-mode-label">フィルター</span>
+      <button id="panel-mode-btn" class="filter-toggle-btn active">
+        <span id="panel-mode-icon" aria-hidden="true">✕</span><span id="panel-mode-label">閉じる</span>
       </button>
     </div>
 
-    <div id="filters-section" class="filters-section" hidden>
+    <div id="filters-section" class="filters-section">
       <div class="filter-group">
         <div class="filter-group-title">エリア</div>
         <div class="filter-bar" id="area-chips" role="group" aria-label="エリアで絞り込み"></div>
@@ -63,7 +63,8 @@
       </div>
     </div>
 
-    <section id="list-view" class="list-view"></section>
+    <div id="active-filters-bar" class="active-filters-bar" hidden></div>
+    <section id="list-view" class="list-view" hidden></section>
   </div>
 
 </div>

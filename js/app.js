@@ -25,6 +25,19 @@
 
   let visitedOverrides = loadVisitedOverrides();
   let mapProvider = null;
+  let sourceColorMap = {};
+  let genreIconMap = {};
+  GENRE_META.forEach((g) => { genreIconMap[g.name] = g.icon; });
+
+  function buildSourceColorMap() {
+    const counts = new Map();
+    RESTAURANTS.forEach((r) => {
+      if (r.source) counts.set(r.source, (counts.get(r.source) || 0) + 1);
+    });
+    const sources = Array.from(counts.keys()).sort((a, b) => counts.get(b) - counts.get(a));
+    sources.forEach((s, i) => { sourceColorMap[s] = SOURCE_COLORS[i % SOURCE_COLORS.length]; });
+    return { sources, counts };
+  }
 
   function loadVisitedOverrides() {
     try {
@@ -155,14 +168,10 @@
   // ---------- Source chips ----------
   function renderSourceChips() {
     const container = document.getElementById("source-chips");
-    const counts = new Map();
-    RESTAURANTS.forEach((r) => {
-      if (r.source) counts.set(r.source, (counts.get(r.source) || 0) + 1);
-    });
-    const sources = Array.from(counts.keys()).sort((a, b) => counts.get(b) - counts.get(a));
+    const { sources, counts } = buildSourceColorMap();
     let html = `<button class="chip chip-all active" data-source="">すべて</button>`;
-    html += sources.map((s, i) => {
-      const color = SOURCE_COLORS[i % SOURCE_COLORS.length];
+    html += sources.map((s) => {
+      const color = sourceColorMap[s];
       return `<button class="chip chip-source" style="--chip-color:${color}" data-source="${escapeHtml(s)}">${escapeHtml(s)} (${counts.get(s)})</button>`;
     }).join("");
     container.innerHTML = html;
@@ -194,26 +203,25 @@
     }
     el.innerHTML = items.map((item) => {
       const visited = isVisited(item);
-      const genreBadges = (item.genre || []).map((g) => `<span class="badge">${escapeHtml(g)}</span>`).join("");
-      const sourceBadge = item.source ? `<span class="badge badge-source">${escapeHtml(item.source)}</span>` : "";
+      const areaBadge = `<span class="badge badge-area"><span class="card-line-dot" style="background:${lineColorSafe(item.line)}"></span>${escapeHtml(item.area_ja)}</span>`;
+      const sourceColor = item.source ? sourceColorMap[item.source] : null;
+      const sourceBadge = item.source ? `<span class="badge badge-source" style="--badge-color:${sourceColor}">${escapeHtml(item.source)}</span>` : "";
+      const genreBadges = (item.genre || []).map((g) => `<span class="badge">${genreIconMap[g] || ""} ${escapeHtml(g)}</span>`).join("");
       const notesLine = item.notes ? `<div class="card-notes"><span class="card-line-icon" aria-hidden="true">📝</span>${escapeHtml(item.notes)}</div>` : "";
       return `
         <div class="card">
           <button class="card-main" data-id="${item.id}">
             <div class="card-top">
-              <div>
-                <div class="card-name">${escapeHtml(item.name)}</div>
-                <div class="card-area"><span class="card-line-dot" style="background:${lineColorSafe(item.line)}"></span>${escapeHtml(item.area_ja)}</div>
-              </div>
+              <div class="card-name">${escapeHtml(item.name)}</div>
               ${visited ? '<span class="card-visited">訪問済み</span>' : ""}
             </div>
+            <div class="card-badges">${areaBadge}${sourceBadge}${genreBadges}</div>
             <div class="card-menu"><span class="card-line-icon" aria-hidden="true">🍽️</span>${escapeHtml(item.menu || "")}</div>
             ${notesLine}
-            <div class="card-badges">${genreBadges}${sourceBadge}</div>
           </button>
           <div class="card-links">
-            <a class="card-link-btn card-link-naver" href="${item.naver_url || "#"}" target="_blank" rel="noopener">📍 Naver</a>
-            <a class="card-link-btn card-link-google" href="${buildGoogleUrl(item)}" target="_blank" rel="noopener">📍 Google</a>
+            <a class="card-link-btn card-link-naver" href="${item.naver_url || "#"}" target="_blank" rel="noopener">Naver</a>
+            <a class="card-link-btn card-link-google" href="${buildGoogleUrl(item)}" target="_blank" rel="noopener">Google</a>
           </div>
         </div>
       `;
@@ -313,28 +321,85 @@
     state.panelMode = mode;
     const filtersSection = document.getElementById("filters-section");
     const listView = document.getElementById("list-view");
+    const activeFiltersBar = document.getElementById("active-filters-bar");
     const btn = document.getElementById("panel-mode-btn");
     const icon = document.getElementById("panel-mode-icon");
     const label = document.getElementById("panel-mode-label");
     if (mode === "filters") {
       filtersSection.hidden = false;
       listView.hidden = true;
+      activeFiltersBar.hidden = true;
       btn.classList.add("active");
       icon.textContent = "✕";
       label.textContent = "閉じる";
     } else {
       filtersSection.hidden = true;
       listView.hidden = false;
+      activeFiltersBar.hidden = false;
       btn.classList.remove("active");
-      icon.textContent = "⚙️";
-      label.textContent = "フィルター";
+      icon.textContent = "🔍";
+      label.textContent = "検索";
     }
+  }
+
+  // ---------- Active filters summary ----------
+  function removeSearchFilter() {
+    state.search = "";
+    document.getElementById("search-input").value = "";
+    refresh();
+  }
+  function removeGenreFilter(g) {
+    state.genres.delete(g);
+    document.querySelectorAll("#genre-chips .chip").forEach((c) => {
+      if (c.dataset.genre === g) c.classList.remove("active");
+    });
+    document.querySelector("#genre-chips .chip-all").classList.toggle("active", state.genres.size === 0);
+    refresh();
+  }
+  function removeAreaFilter() {
+    state.stationKey = null;
+    document.querySelectorAll("#area-chips .chip").forEach((c) => c.classList.remove("active"));
+    document.querySelector("#area-chips .chip-all").classList.add("active");
+    refresh();
+  }
+  function removeSourceFilter() {
+    state.source = "";
+    document.querySelectorAll("#source-chips .chip").forEach((c) => c.classList.remove("active"));
+    document.querySelector("#source-chips .chip-all").classList.add("active");
+    refresh();
+  }
+  function removeVisitedFilter() {
+    state.visitedOnly = false;
+    document.getElementById("visited-filter").checked = false;
+    refresh();
+  }
+
+  function renderActiveFiltersBar() {
+    const bar = document.getElementById("active-filters-bar");
+    const pills = [];
+    if (state.search) pills.push({ label: `🔍 "${state.search}"`, onRemove: removeSearchFilter });
+    state.genres.forEach((g) => pills.push({ label: `${genreIconMap[g] || ""} ${g}`, onRemove: () => removeGenreFilter(g) }));
+    if (state.stationKey) {
+      const areaJa = state.stationKey.split("|")[1];
+      pills.push({ label: `📍 ${areaJa}`, onRemove: removeAreaFilter });
+    }
+    if (state.source) pills.push({ label: state.source, onRemove: removeSourceFilter });
+    if (state.visitedOnly) pills.push({ label: "訪問済みのみ", onRemove: removeVisitedFilter });
+
+    if (pills.length === 0) { bar.innerHTML = ""; return; }
+    bar.innerHTML = pills.map((p, i) => (
+      `<span class="active-filter-pill" data-i="${i}">${escapeHtml(p.label)}<button type="button" aria-label="この条件を削除">✕</button></span>`
+    )).join("");
+    bar.querySelectorAll(".active-filter-pill").forEach((el, i) => {
+      el.querySelector("button").addEventListener("click", pills[i].onRemove);
+    });
   }
 
   // ---------- Refresh ----------
   function refresh() {
     const filtered = getFiltered();
     document.getElementById("result-count").textContent = `${filtered.length} / ${RESTAURANTS.length} 店舗`;
+    renderActiveFiltersBar();
     renderList(filtered);
     renderMap(filtered);
   }
@@ -345,7 +410,7 @@
     renderAreaChips();
     renderGenreChips();
     renderSourceChips();
-    setPanelMode("results");
+    setPanelMode("filters");
 
     document.getElementById("search-input").addEventListener("input", (e) => {
       state.search = e.target.value.trim();
