@@ -67,6 +67,7 @@ class LeafletMapProvider {
     this.containerId = containerId;
     this.map = null;
     this.markers = [];
+    this.markerById = {};
   }
 
   init(center, zoom) {
@@ -126,6 +127,7 @@ class LeafletMapProvider {
   clearMarkers() {
     this.markers.forEach((m) => this.map.removeLayer(m));
     this.markers = [];
+    this.markerById = {};
   }
 
   setMarkers(items, onClick) {
@@ -150,7 +152,16 @@ class LeafletMapProvider {
       });
       marker.addTo(this.map);
       this.markers.push(marker);
+      this.markerById[item.id] = marker;
     });
+  }
+
+  focusMarker(itemId) {
+    const marker = this.markerById[itemId];
+    if (!marker || !this.map) return;
+    const targetZoom = Math.max(this.map.getZoom(), 16);
+    this.map.setView(marker.getLatLng(), targetZoom, { animate: true });
+    marker.openPopup();
   }
 
   panTo(lat, lon, zoom) {

@@ -220,6 +220,7 @@
             ${notesLine}
           </button>
           <div class="card-links">
+            <button type="button" class="card-link-btn card-link-detail" data-id="${item.id}">詳細</button>
             <a class="card-link-btn card-link-naver" href="${item.naver_url || "#"}" target="_blank" rel="noopener">Naver</a>
             <a class="card-link-btn card-link-google" href="${buildGoogleUrl(item)}" target="_blank" rel="noopener">Google</a>
           </div>
@@ -227,7 +228,10 @@
       `;
     }).join("");
     el.querySelectorAll(".card-main").forEach((card) => {
-      card.addEventListener("click", () => openDetail(card.dataset.id));
+      card.addEventListener("click", () => focusOnMap(card.dataset.id));
+    });
+    el.querySelectorAll(".card-link-detail").forEach((btn) => {
+      btn.addEventListener("click", () => openDetail(btn.dataset.id));
     });
   }
 
@@ -242,6 +246,17 @@
   function renderMap(items) {
     ensureMapInit();
     mapProvider.setMarkers(items.filter((i) => i.lat != null), (id) => openDetail(id));
+  }
+
+  function focusOnMap(id) {
+    const item = RESTAURANTS.find((r) => r.id === id);
+    if (!item || item.lat == null) {
+      openDetail(id);
+      return;
+    }
+    ensureMapInit();
+    document.getElementById("map-container").scrollIntoView({ behavior: "smooth", block: "start" });
+    mapProvider.focusMarker(id);
   }
 
   // ---------- Detail sheet ----------

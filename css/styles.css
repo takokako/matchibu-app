@@ -280,6 +280,8 @@ button { font-family: inherit; }
   border-radius: 50%;
   background: var(--link-color);
 }
+.card-link-detail { --link-color: #6b6b6b; }
+.card-link-detail::before { display: none; }
 .card-link-naver { --link-color: #03c75a; }
 .card-link-google { --link-color: #4285f4; }
 
