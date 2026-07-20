@@ -16,7 +16,7 @@
 
   // Published Google Sheet CSV URL (File > Share > Publish to web > CSV).
   // Leave empty to use only the bundled js/data.js. See docs/sheet-sync.md.
-  const SHEET_CSV_URL = "";
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRHkDoNBT-bVVYoLTcIkfchn1d-WnvtdpDIA48SpgjmF7159LwsbRr-YryL2HSuc5ZBEu3XMQSDjPUH/pub?output=csv";
 
   const state = {
     search: "",
@@ -465,6 +465,13 @@
     return s === "TRUE" || s === "1" || s === "YES" || s === "○" || s === "✓";
   }
 
+  function normalizeLine(v) {
+    if (!v) return "";
+    return v.replace(/号線/, "")
+      .replace(/[１２３]/g, (c) => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+      .trim();
+  }
+
   // Merge live sheet rows onto the static (geocoded + genre-tagged) base
   // dataset, matched by store name. Editable fields come from the sheet;
   // genre/coordinates always come from the base dataset since those need
@@ -480,11 +487,12 @@
       if (!name) return;
       const base = byName[name];
       if (base) {
+        // line/area_ja/area_ko are intentionally NOT taken from the sheet for
+        // matched rows: they drive map/station matching and the sheet export
+        // re-encodes digits (e.g. full-width "１号線") in a way that would
+        // silently break that matching. Use "Claudeに再同期を依頼" to change them.
         merged.push({
           ...base,
-          line: row.line ? row.line.replace(/号線/, "").trim() || base.line : base.line,
-          area_ja: row.area_ja || base.area_ja,
-          area_ko: row.area_ko || base.area_ko,
           naver_url: row.naver_url || base.naver_url,
           google_url: row.google_url || base.google_url,
           address_road: row.address_road || base.address_road,
@@ -500,7 +508,7 @@
           seq: 9000 + idx,
           type: "food",
           visited: parseSheetBool(row.visited),
-          line: row.line ? row.line.replace(/号線/, "").trim() : "",
+          line: normalizeLine(row.line),
           area_ja: row.area_ja || "",
           area_ko: row.area_ko || "",
           name: name,
