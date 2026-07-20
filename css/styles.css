@@ -98,7 +98,7 @@ button { font-family: inherit; }
   position: absolute;
   top: 10px;
   right: 10px;
-  z-index: 500;
+  z-index: 1100;
   width: 34px;
   height: 34px;
   border-radius: 8px;
@@ -433,7 +433,10 @@ button { font-family: inherit; }
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.4);
-  z-index: 40;
+  /* Leaflet's own panes/controls use z-index up to 1000 and (since none of
+     our map ancestors establish a stacking context) compete directly in the
+     root stacking context, so this and .sheet must clear that. */
+  z-index: 1900;
 }
 .backdrop.hidden { display: none; }
 
@@ -443,7 +446,7 @@ button { font-family: inherit; }
   max-height: 85vh;
   background: var(--color-surface);
   border-radius: 18px 18px 0 0;
-  z-index: 50;
+  z-index: 2000;
   padding: 8px 20px calc(24px + var(--safe-bottom));
   overflow-y: auto;
   box-shadow: 0 -6px 24px rgba(0,0,0,0.2);
