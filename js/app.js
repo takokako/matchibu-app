@@ -329,16 +329,16 @@
       filtersSection.hidden = false;
       listView.hidden = true;
       activeFiltersBar.hidden = true;
-      btn.classList.add("active");
-      icon.textContent = "✕";
-      label.textContent = "閉じる";
+      btn.classList.remove("active");
+      icon.textContent = "🔍";
+      label.textContent = "検索";
     } else {
       filtersSection.hidden = true;
       listView.hidden = false;
       activeFiltersBar.hidden = false;
-      btn.classList.remove("active");
-      icon.textContent = "🔍";
-      label.textContent = "検索";
+      btn.classList.add("active");
+      icon.textContent = "✕";
+      label.textContent = "閉じる";
     }
   }
 
@@ -445,6 +445,15 @@
 
     document.getElementById("detail-close").addEventListener("click", closeDetail);
     document.getElementById("backdrop").addEventListener("click", closeDetail);
+
+    document.getElementById("map-expand-btn").addEventListener("click", () => {
+      const container = document.getElementById("map-container");
+      const icon = document.getElementById("map-expand-icon");
+      const expanded = container.classList.toggle("expanded");
+      icon.textContent = expanded ? "⤡" : "⤢";
+      document.getElementById("map-expand-btn").setAttribute("aria-label", expanded ? "地図を縮小" : "地図を拡大");
+      setTimeout(() => { if (mapProvider) mapProvider.invalidateSize(); }, 260);
+    });
 
     refresh();
 
