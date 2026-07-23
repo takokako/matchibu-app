@@ -380,8 +380,8 @@ const TRANSIT_LINES = {
                   "lat":  35.1347580,
                   "lon":  129.0847830,
                   "name_en":  "Motgol",
-                  "area_ja":  "毛徳",
-                  "highlighted":  true
+                  "area_ja":  null,
+                  "highlighted":  false
               },
               {
                   "lat":  35.1356680,
@@ -485,8 +485,8 @@ const TRANSIT_LINES = {
                   "lat":  35.1803610,
                   "lon":  128.9856210,
                   "name_en":  "Modeok",
-                  "area_ja":  null,
-                  "highlighted":  false
+                  "area_ja":  "毛徳",
+                  "highlighted":  true
               },
               {
                   "lat":  35.1892988,

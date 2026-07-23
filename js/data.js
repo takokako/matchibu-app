@@ -670,9 +670,9 @@ const RESTAURANTS = [
         "address_lot":  "부산 부산진구 부전동 256-6",
         "naver_url":  "https://naver.me/xtgpECFc",
         "google_url":  null,
-        "lat":  35.152172,
-        "lon":  129.0576071,
-        "geo_precision":  "road_address"
+        "lat":  35.1569988,
+        "lon":  129.058582,
+        "geo_precision":  "lot_address"
     },
     {
         "id":  "b36",
@@ -762,9 +762,9 @@ const RESTAURANTS = [
         "address_lot":  "부산 부산진구 부전동 256-6",
         "naver_url":  "https://naver.me/GwpMe1yw",
         "google_url":  null,
-        "lat":  35.152172,
-        "lon":  129.0576071,
-        "geo_precision":  "road_address"
+        "lat":  35.1569988,
+        "lon":  129.058582,
+        "geo_precision":  "lot_address"
     },
     {
         "id":  "b42",
@@ -877,9 +877,9 @@ const RESTAURANTS = [
         "address_lot":  "부산 금정구 구서동 654-14",
         "naver_url":  "https://naver.me/5D84ixyM",
         "google_url":  null,
-        "lat":  35.2279521,
-        "lon":  129.0836587,
-        "geo_precision":  "road_address"
+        "lat":  35.2534821,
+        "lon":  129.0884377,
+        "geo_precision":  "lot_address"
     },
     {
         "id":  "b52",
@@ -993,9 +993,9 @@ const RESTAURANTS = [
         "address_lot":  "부산 사상구 삼락동 356-1",
         "naver_url":  "https://naver.me/FA2ftijT",
         "google_url":  null,
-        "lat":  35.1313108,
-        "lon":  128.9720426,
-        "geo_precision":  "road_simplified"
+        "lat":  35.1944864,
+        "lon":  128.9848244,
+        "geo_precision":  "dong_level"
     },
     {
         "id":  "b64",
