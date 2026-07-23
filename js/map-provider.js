@@ -33,11 +33,14 @@ function makeRestaurantIcon(item) {
   });
 }
 
-function makeStationDotIcon(line) {
+function makeStationDotIcon(line, label) {
   const color = LINE_COLORS[line] || DEFAULT_PIN_COLOR;
+  const labelHtml = label
+    ? `<span class="minor-station-label">${escapeHtml(label)}</span>`
+    : "";
   return L.divIcon({
-    className: "matchbu-station-dot",
-    html: `<span style="display:block;width:7px;height:7px;background:${color};border:1px solid #fff;border-radius:50%;"></span>`,
+    className: "matchbu-station-dot minor-station-wrap",
+    html: `<span style="display:block;width:7px;height:7px;background:${color};border:1px solid #fff;border-radius:50%;"></span>${labelHtml}`,
     iconSize: [7, 7],
     iconAnchor: [3, 3],
   });
@@ -95,7 +98,10 @@ class LeafletMapProvider {
           L.marker([s.lat, s.lon], { icon: makeStationBadgeIcon(lineRef, s.area_ja), interactive: false }).addTo(this.map);
           L.circleMarker([s.lat, s.lon], { radius: 4, color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 1 }).addTo(this.map);
         } else {
-          L.marker([s.lat, s.lon], { icon: makeStationDotIcon(lineRef), interactive: false }).addTo(this.map);
+          // Minor stations always carry their name (small, hidden until the
+          // map is zoomed in or the marker is hovered) so the map stays
+          // useful as new saved-restaurant areas grow beyond today's set.
+          L.marker([s.lat, s.lon], { icon: makeStationDotIcon(lineRef, s.name_en || null) }).addTo(this.map);
         }
       });
     });
@@ -106,6 +112,16 @@ class LeafletMapProvider {
     });
 
     this.addLegend();
+    this.setupZoomLabelToggle();
+  }
+
+  setupZoomLabelToggle() {
+    const ZOOM_THRESHOLD = 14;
+    const apply = () => {
+      document.body.classList.toggle("map-zoomed-in", this.map.getZoom() >= ZOOM_THRESHOLD);
+    };
+    this.map.on("zoomend", apply);
+    apply();
   }
 
   addLegend() {

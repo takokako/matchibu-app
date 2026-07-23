@@ -84,8 +84,8 @@ const TRANSIT_LINES = {
                   "lat":  35.1860183,
                   "lon":  129.0813845,
                   "name_en":  "Yeonsan",
-                  "area_ja":  null,
-                  "highlighted":  false
+                  "area_ja":  "延山",
+                  "highlighted":  true
               },
               {
                   "lat":  35.1797724,
@@ -513,8 +513,8 @@ const TRANSIT_LINES = {
                   "lat":  35.2107798,
                   "lon":  129.0050608,
                   "name_en":  "Deokcheon",
-                  "area_ja":  null,
-                  "highlighted":  false
+                  "area_ja":  "徳川",
+                  "highlighted":  true
               },
               {
                   "lat":  35.2233039,
@@ -620,8 +620,8 @@ const TRANSIT_LINES = {
                   "lat":  35.1859918,
                   "lon":  129.0815013,
                   "name_en":  "Yeonsan",
-                  "area_ja":  null,
-                  "highlighted":  false
+                  "area_ja":  "延山",
+                  "highlighted":  true
               },
               {
                   "lat":  35.1885438,
@@ -676,8 +676,8 @@ const TRANSIT_LINES = {
                   "lat":  35.2102272,
                   "lon":  129.0057948,
                   "name_en":  "Deokcheon",
-                  "area_ja":  null,
-                  "highlighted":  false
+                  "area_ja":  "徳川",
+                  "highlighted":  true
               },
               {
                   "lat":  35.2067105,
