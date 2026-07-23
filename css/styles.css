@@ -396,13 +396,26 @@ button { font-family: inherit; }
 .station-badge {
   display: inline-block;
   background: #fff;
+  border-style: solid;
   border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 700;
   white-space: nowrap;
   box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   transform: translate(-50%, -130%);
+}
+/* Major: has a saved restaurant, or a real line interchange. */
+.station-badge-major {
+  border-width: 1.5px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+/* Minor: every other real station. Same look, one size down, always visible -
+   legibility comes first, so no hiding behind zoom or hover. */
+.station-badge-minor {
+  border-width: 1px;
+  padding: 1px 6px;
+  font-size: 9px;
+  font-weight: 600;
 }
 .landmark-badge {
   display: flex;
@@ -419,33 +432,6 @@ button { font-family: inherit; }
   transform: translate(-50%, -120%);
 }
 
-.minor-station-wrap { overflow: visible !important; }
-.minor-station-label {
-  display: none;
-  position: absolute;
-  left: 9px;
-  top: -6px;
-  font-size: 9px;
-  color: #666;
-  background: rgba(255,255,255,0.85);
-  padding: 0 3px;
-  border-radius: 3px;
-  white-space: nowrap;
-  line-height: 1.4;
-}
-/* Reveal once the map is zoomed in far enough that labels won't collide. */
-body.map-zoomed-in .minor-station-label { display: inline-block; }
-/* Hovering a station dot always reveals (and emphasizes) its name, even when
-   zoomed out - lets you identify one station without zooming the whole map. */
-.minor-station-wrap:hover .minor-station-label {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-text);
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-  z-index: 10;
-}
 .map-legend {
   background: rgba(255,255,255,0.95);
   border-radius: 10px;

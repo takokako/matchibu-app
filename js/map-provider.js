@@ -5,7 +5,8 @@
 // available (see docs/naver-maps-setup.md), implement a NaverMapProvider with the
 // same method signatures and swap the instantiation in app.js.
 
-const LINE_COLORS = { "1": "#e2231a", "2": "#34a853", "3": "#a9812d" };
+const LINE_COLORS = { "1": "#e2231a", "2": "#34a853", "3": "#a9812d", "BGL": "#8e44ad" };
+const LINE_DISPLAY_NAMES = { "1": "1号線", "2": "2号線", "3": "3号線", "BGL": "釜山金海軽電鉄" };
 const DEFAULT_PIN_COLOR = "#555555";
 
 function escapeHtml(str) {
@@ -33,24 +34,16 @@ function makeRestaurantIcon(item) {
   });
 }
 
-function makeStationDotIcon(line, label) {
+// Every station gets a readable name label; major (has-a-saved-restaurant,
+// or a real line interchange) stations render bigger/bolder, everything
+// else uses the same visual style just a size step down. Always visible -
+// no zoom-gating or hover-to-reveal - since legibility comes first.
+function makeStationLabelIcon(line, label, isMajor) {
   const color = LINE_COLORS[line] || DEFAULT_PIN_COLOR;
-  const labelHtml = label
-    ? `<span class="minor-station-label">${escapeHtml(label)}</span>`
-    : "";
-  return L.divIcon({
-    className: "matchbu-station-dot minor-station-wrap",
-    html: `<span style="display:block;width:7px;height:7px;background:${color};border:1px solid #fff;border-radius:50%;"></span>${labelHtml}`,
-    iconSize: [7, 7],
-    iconAnchor: [3, 3],
-  });
-}
-
-function makeStationBadgeIcon(line, label) {
-  const color = LINE_COLORS[line] || DEFAULT_PIN_COLOR;
+  const cls = isMajor ? "station-badge station-badge-major" : "station-badge station-badge-minor";
   return L.divIcon({
     className: "matchbu-station-badge",
-    html: `<span class="station-badge" style="border:1.5px solid ${color};color:${color};">${escapeHtml(label)}</span>`,
+    html: `<span class="${cls}" style="border-color:${color};color:${color};">${escapeHtml(label)}</span>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],
   });
@@ -94,15 +87,16 @@ class LeafletMapProvider {
       L.polyline(latlngs, { color, weight: 3, opacity: 0.75 }).addTo(this.map);
 
       stations.forEach((s) => {
-        if (s.highlighted) {
-          L.marker([s.lat, s.lon], { icon: makeStationBadgeIcon(lineRef, s.area_ja), interactive: false }).addTo(this.map);
-          L.circleMarker([s.lat, s.lon], { radius: 4, color: "#fff", weight: 1.5, fillColor: color, fillOpacity: 1 }).addTo(this.map);
-        } else {
-          // Minor stations always carry their name (small, hidden until the
-          // map is zoomed in or the marker is hovered) so the map stays
-          // useful as new saved-restaurant areas grow beyond today's set.
-          L.marker([s.lat, s.lon], { icon: makeStationDotIcon(lineRef, s.name_en || null) }).addTo(this.map);
-        }
+        const label = s.name_ja || s.area_ja || s.name_en;
+        if (!label) return;
+        L.marker([s.lat, s.lon], { icon: makeStationLabelIcon(lineRef, label, !!s.highlighted), interactive: false }).addTo(this.map);
+        L.circleMarker([s.lat, s.lon], {
+          radius: s.highlighted ? 4 : 3,
+          color: "#fff",
+          weight: 1.5,
+          fillColor: color,
+          fillOpacity: 1,
+        }).addTo(this.map);
       });
     });
 
@@ -112,16 +106,6 @@ class LeafletMapProvider {
     });
 
     this.addLegend();
-    this.setupZoomLabelToggle();
-  }
-
-  setupZoomLabelToggle() {
-    const ZOOM_THRESHOLD = 14;
-    const apply = () => {
-      document.body.classList.toggle("map-zoomed-in", this.map.getZoom() >= ZOOM_THRESHOLD);
-    };
-    this.map.on("zoomend", apply);
-    apply();
   }
 
   addLegend() {
@@ -129,9 +113,10 @@ class LeafletMapProvider {
     legend.onAdd = () => {
       const div = L.DomUtil.create("div", "map-legend");
       div.innerHTML = `
-        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['1']}"></span>1号線</div>
-        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['2']}"></span>2号線</div>
-        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['3']}"></span>3号線</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['1']}"></span>${LINE_DISPLAY_NAMES['1']}</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['2']}"></span>${LINE_DISPLAY_NAMES['2']}</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['3']}"></span>${LINE_DISPLAY_NAMES['3']}</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['BGL']}"></span>${LINE_DISPLAY_NAMES['BGL']}</div>
         <div class="map-legend-row"><span class="map-legend-dot" style="background:#c81e2c"></span>お店</div>
       `;
       L.DomEvent.disableClickPropagation(div);
