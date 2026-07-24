@@ -5,8 +5,8 @@
 // available (see docs/naver-maps-setup.md), implement a NaverMapProvider with the
 // same method signatures and swap the instantiation in app.js.
 
-const LINE_COLORS = { "1": "#e2231a", "2": "#34a853", "3": "#a9812d", "BGL": "#8e44ad" };
-const LINE_DISPLAY_NAMES = { "1": "1号線", "2": "2号線", "3": "3号線", "BGL": "釜山金海軽電鉄" };
+const LINE_COLORS = { "1": "#e2231a", "2": "#34a853", "3": "#a9812d", "4": "#217dcb", "BGL": "#8e44ad", "Donghae": "#0054a6" };
+const LINE_DISPLAY_NAMES = { "1": "1号線", "2": "2号線", "3": "3号線", "4": "4号線", "BGL": "釜山金海軽電鉄", "Donghae": "東海線" };
 const DEFAULT_PIN_COLOR = "#555555";
 
 function escapeHtml(str) {
@@ -135,7 +135,9 @@ class LeafletMapProvider {
         <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['1']}"></span>${LINE_DISPLAY_NAMES['1']}</div>
         <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['2']}"></span>${LINE_DISPLAY_NAMES['2']}</div>
         <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['3']}"></span>${LINE_DISPLAY_NAMES['3']}</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['4']}"></span>${LINE_DISPLAY_NAMES['4']}</div>
         <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['BGL']}"></span>${LINE_DISPLAY_NAMES['BGL']}</div>
+        <div class="map-legend-row"><span class="map-legend-swatch" style="background:${LINE_COLORS['Donghae']}"></span>${LINE_DISPLAY_NAMES['Donghae']}</div>
         <div class="map-legend-row"><span class="map-legend-dot" style="background:#c81e2c"></span>お店</div>
       `;
       L.DomEvent.disableClickPropagation(div);

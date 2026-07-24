@@ -977,7 +977,299 @@ const TRANSIT_LINES = {
                     "area_ja":  null,
                     "highlighted":  false
                 }
-            ]
+            ],
+    "Donghae":  [
+                    {
+                        "lat":  35.1637339,
+                        "lon":  129.0592162,
+                        "name_en":  "Bujeon",
+                        "name_ja":  "釜田",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1820560,
+                        "lon":  129.0693093,
+                        "name_en":  "Geojehaemaji",
+                        "name_ja":  "巨堤ヘマジ",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1901576,
+                        "lon":  129.0749301,
+                        "name_en":  "Geoje",
+                        "name_ja":  "巨堤駅",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1943012,
+                        "lon":  129.0804998,
+                        "name_en":  "Busan National University of Education",
+                        "name_ja":  "教大",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1970196,
+                        "lon":  129.0922272,
+                        "name_en":  "Dongnae",
+                        "name_ja":  "東莱",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1960274,
+                        "lon":  129.1015286,
+                        "name_en":  "Allak",
+                        "name_ja":  "安楽",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1874076,
+                        "lon":  129.1201971,
+                        "name_en":  "Jaesong",
+                        "name_ja":  "栽松",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1784658,
+                        "lon":  129.1253457,
+                        "name_en":  "Centum",
+                        "name_ja":  "センタム",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1712130,
+                        "lon":  129.1368167,
+                        "name_en":  "BEXCO (Busan Museum of Art)",
+                        "name_ja":  "BEXCO(市立美術館)",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1816615,
+                        "lon":  129.1772043,
+                        "name_en":  "Sinhaeundae",
+                        "name_ja":  "新海雲台",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1883592,
+                        "lon":  129.2024314,
+                        "name_en":  "Songjeong",
+                        "name_ja":  "松亭",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.1969223,
+                        "lon":  129.2089910,
+                        "name_en":  "OSIRIA",
+                        "name_ja":  "オシリア",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.2453394,
+                        "lon":  129.2188790,
+                        "name_en":  "Gijang",
+                        "name_ja":  "機張",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.2692780,
+                        "lon":  129.2335552,
+                        "name_en":  "Ilgwang",
+                        "name_ja":  "日光",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.3123821,
+                        "lon":  129.2457726,
+                        "name_en":  "Jwacheon",
+                        "name_ja":  "佐川",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.3286192,
+                        "lon":  129.2771100,
+                        "name_en":  "Wollae",
+                        "name_ja":  "月来",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.3468395,
+                        "lon":  129.2930704,
+                        "name_en":  "Seosaeng",
+                        "name_ja":  "西生",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.4205525,
+                        "lon":  129.2816975,
+                        "name_en":  "Namchang",
+                        "name_ja":  "南倉",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.4572378,
+                        "lon":  129.2880507,
+                        "name_en":  "Mangyang",
+                        "name_ja":  "望洋",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.4947346,
+                        "lon":  129.3034468,
+                        "name_en":  "Deokha",
+                        "name_ja":  "徳下",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.5082220,
+                        "lon":  129.3219351,
+                        "name_en":  "Gaeunpo",
+                        "name_ja":  "開雲浦",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    },
+                    {
+                        "lat":  35.5383270,
+                        "lon":  129.3535779,
+                        "name_en":  "Taehwagang",
+                        "name_ja":  "太和江",
+                        "area_ja":  null,
+                        "highlighted":  false
+                    }
+                ],
+    "4":  [
+              {
+                  "lat":  35.2065213,
+                  "lon":  129.0687890,
+                  "name_en":  "Minam",
+                  "name_ja":  "美南",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2047222,
+                  "lon":  129.0772975,
+                  "name_en":  "Dongnae",
+                  "name_ja":  "東萊",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2017248,
+                  "lon":  129.0838787,
+                  "name_en":  "Suan",
+                  "name_ja":  "寿安",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2001883,
+                  "lon":  129.0908233,
+                  "name_en":  "Nakmin",
+                  "name_ja":  "楽民",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.1997237,
+                  "lon":  129.0975688,
+                  "name_en":  "Chungryeolsa",
+                  "name_ja":  "忠烈祠",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2053788,
+                  "lon":  129.1017618,
+                  "name_en":  "Myeongjang",
+                  "name_ja":  "鳴蔵",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2130228,
+                  "lon":  129.1075237,
+                  "name_en":  "Seo-dong",
+                  "name_ja":  "書洞",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2157922,
+                  "lon":  129.1152377,
+                  "name_en":  "Geumsa",
+                  "name_ja":  "錦糸",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2177692,
+                  "lon":  129.1238374,
+                  "name_en":  "Banyeo Agricultural Market",
+                  "name_ja":  "盤如農産物市場",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2180644,
+                  "lon":  129.1368574,
+                  "name_en":  "Seokdae",
+                  "name_ja":  "石坮",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2256484,
+                  "lon":  129.1460921,
+                  "name_en":  "Youngsan University",
+                  "name_ja":  "霊山大学",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2325216,
+                  "lon":  129.1539359,
+                  "name_en":  null,
+                  "name_ja":  "上盤松",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2361256,
+                  "lon":  129.1604700,
+                  "name_en":  "Gochon",
+                  "name_ja":  "古村",
+                  "area_ja":  null,
+                  "highlighted":  false
+              },
+              {
+                  "lat":  35.2373765,
+                  "lon":  129.1717326,
+                  "name_en":  "Anpyeong",
+                  "name_ja":  "安平",
+                  "area_ja":  null,
+                  "highlighted":  false
+              }
+          ]
 };
 
 const LANDMARKS = [

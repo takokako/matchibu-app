@@ -1,12 +1,12 @@
-const CACHE_NAME = "matchbu-busan-v13";
+const CACHE_NAME = "matchbu-busan-v14";
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./css/styles.css?v=17",
-  "./js/data.js?v=17",
-  "./js/transit-data.js?v=17",
-  "./js/map-provider.js?v=17",
-  "./js/app.js?v=17",
+  "./css/styles.css?v=18",
+  "./js/data.js?v=18",
+  "./js/transit-data.js?v=18",
+  "./js/map-provider.js?v=18",
+  "./js/app.js?v=18",
   "./manifest.webmanifest",
   "./icons/icon.svg",
 ];
