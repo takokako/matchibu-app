@@ -34,15 +34,16 @@ function makeRestaurantIcon(item) {
   });
 }
 
-// Every station gets a readable name label; major (has-a-saved-restaurant,
-// or a real line interchange) stations render bigger/bolder, everything
-// else uses the same visual style just a size step down. Always visible -
-// no zoom-gating or hover-to-reveal - since legibility comes first.
+// Every station gets a readable name label, same visual style throughout;
+// major (has-a-saved-restaurant, or a real line interchange) stations render
+// one size bigger. Minor-station markers carry an extra class so map-provider
+// can hide them at low zoom (see setupOverviewZoomToggle) once there isn't
+// enough screen space between stations to keep every name legible.
 function makeStationLabelIcon(line, label, isMajor) {
   const color = LINE_COLORS[line] || DEFAULT_PIN_COLOR;
   const cls = isMajor ? "station-badge station-badge-major" : "station-badge station-badge-minor";
   return L.divIcon({
-    className: "matchbu-station-badge",
+    className: isMajor ? "matchbu-station-badge" : "matchbu-station-badge minor-station-marker",
     html: `<span class="${cls}" style="border-color:${color};color:${color};">${escapeHtml(label)}</span>`,
     iconSize: [0, 0],
     iconAnchor: [0, 0],
@@ -96,6 +97,7 @@ class LeafletMapProvider {
           weight: 1.5,
           fillColor: color,
           fillOpacity: 1,
+          className: s.highlighted ? "" : "minor-station-dot",
         }).addTo(this.map);
       });
     });
@@ -106,6 +108,20 @@ class LeafletMapProvider {
     });
 
     this.addLegend();
+    this.setupOverviewZoomToggle();
+  }
+
+  // Below this zoom, minor (non-restaurant, non-interchange) station names
+  // start to overlap too much to read, so only major stations show; at or
+  // above it there's enough screen space per station that showing everyone
+  // stays legible. Adjust ZOOM_THRESHOLD if that crossover feels off.
+  setupOverviewZoomToggle() {
+    const ZOOM_THRESHOLD = 14;
+    const apply = () => {
+      document.body.classList.toggle("map-overview-mode", this.map.getZoom() < ZOOM_THRESHOLD);
+    };
+    this.map.on("zoomend", apply);
+    apply();
   }
 
   addLegend() {

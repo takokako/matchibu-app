@@ -417,6 +417,11 @@ button { font-family: inherit; }
   font-size: 9px;
   font-weight: 600;
 }
+
+/* Zoomed out far enough that minor station names would overlap: show only
+   major stations (has a restaurant, or a real line interchange). */
+body.map-overview-mode .minor-station-marker,
+body.map-overview-mode .minor-station-dot { display: none; }
 .landmark-badge {
   display: flex;
   align-items: center;
