@@ -90,7 +90,10 @@ class LeafletMapProvider {
       stations.forEach((s) => {
         const label = s.name_ja || s.area_ja || s.name_en;
         if (!label) return;
-        L.marker([s.lat, s.lon], { icon: makeStationLabelIcon(lineRef, label, !!s.highlighted), interactive: false }).addTo(this.map);
+        // Major station names must stay legible even under a cluster of
+        // restaurant flags (zIndexOffset 1000), so they render on top.
+        const zIndexOffset = s.highlighted ? 2000 : 0;
+        L.marker([s.lat, s.lon], { icon: makeStationLabelIcon(lineRef, label, !!s.highlighted), interactive: false, zIndexOffset }).addTo(this.map);
         L.circleMarker([s.lat, s.lon], {
           radius: s.highlighted ? 4 : 3,
           color: "#fff",
@@ -116,7 +119,7 @@ class LeafletMapProvider {
   // above it there's enough screen space per station that showing everyone
   // stays legible. Adjust ZOOM_THRESHOLD if that crossover feels off.
   setupOverviewZoomToggle() {
-    const ZOOM_THRESHOLD = 14;
+    const ZOOM_THRESHOLD = 13;
     const apply = () => {
       document.body.classList.toggle("map-overview-mode", this.map.getZoom() < ZOOM_THRESHOLD);
     };
