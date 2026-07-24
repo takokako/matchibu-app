@@ -10,6 +10,7 @@
     { name: "鍋・チゲ", icon: "🫕" },
     { name: "軽食・屋台グルメ", icon: "🍢" },
     { name: "市場・買い物・両替", icon: "🏪" },
+    { name: "ホテル", icon: "🏨" },
     { name: "その他", icon: "📍" },
   ];
   const SOURCE_COLORS = ["#c81e2c", "#8a4fc8", "#1f8a5f", "#e0592a", "#2f7fd1", "#c8788a", "#5a8a2f", "#b06a1f"];
@@ -112,13 +113,13 @@
   }
 
   function lineColorSafe(line) {
-    return { "1": "#e2231a", "2": "#34a853", "3": "#a9812d" }[line] || "#777";
+    return { "1": "#e2231a", "2": "#34a853", "3": "#a9812d", "4": "#217dcb", "BGL": "#8e44ad", "Donghae": "#0054a6" }[line] || "#777";
   }
 
   // ---------- Area chips ----------
   function renderAreaChips() {
     const container = document.getElementById("area-chips");
-    const lineNames = { "1": "1号線", "2": "2号線", "3": "3号線" };
+    const lineNames = { "1": "1号線", "2": "2号線", "3": "3号線", "4": "4号線", "BGL": "釜山金海軽電鉄", "Donghae": "東海線" };
     let html = `<button class="chip chip-all active" data-key="">すべて</button>`;
     STATIONS.forEach((s) => {
       const key = `${s.line}|${s.area_ja}`;

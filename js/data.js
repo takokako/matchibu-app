@@ -1295,9 +1295,171 @@ const RESTAURANTS = [
         "address_lot":  "부산 해운대구 중동 957-1",
         "naver_url":  "https://naver.me/GhbgCEAZ",
         "google_url":  null,
-        "lat":  35.1635017,
-        "lon":  129.1744702,
+        "lat":  35.1578569,
+        "lon":  129.1723282,
+        "geo_precision":  "road_address"
+    },
+    {
+        "id":  "b101",
+        "seq":  57,
+        "type":  "food",
+        "visited":  false,
+        "line":  "3",
+        "area_ja":  "社稷",
+        "area_ko":  "사직",
+        "name":  "옛정참숯불갈비 사직원조점",
+        "genre":  [
+                      "焼肉・肉料理"
+                  ],
+        "menu":  "テジカルビ",
+        "source":  "隣の国のグルメイト",
+        "notes":  "球場横 イデホ選手がここも美味しいと言ってた",
+        "address_road":  "부산 동래구 사직로 54-4 옛정 참숯불갈비",
+        "address_lot":  "부산 동래구 사직동 92-21",
+        "naver_url":  "https://naver.me/5YFddfMZ",
+        "google_url":  null,
+        "lat":  35.1958986,
+        "lon":  129.0622839,
+        "geo_precision":  "road_simplified"
+    },
+    {
+        "id":  "b102",
+        "seq":  58,
+        "type":  "food",
+        "visited":  false,
+        "line":  "3",
+        "area_ja":  "社稷",
+        "area_ko":  "사직",
+        "name":  "주문진 막국수",
+        "genre":  [
+                      "麺類"
+                  ],
+        "menu":  "マッククス",
+        "source":  "隣の国のグルメイト",
+        "notes":  "球場横 イデホ選手が言及(昔は小さい店だった）",
+        "address_road":  "부산 동래구 사직로58번길 8",
+        "address_lot":  "부산 동래구 사직동 92-1",
+        "naver_url":  "https://naver.me/FCA8dlF1",
+        "google_url":  null,
+        "lat":  35.1963803,
+        "lon":  129.0592539,
+        "geo_precision":  "road_address"
+    },
+    {
+        "id":  "b103",
+        "seq":  59,
+        "type":  "spot",
+        "visited":  false,
+        "line":  "BGL",
+        "area_ja":  "大沙",
+        "area_ko":  "대사",
+        "name":  "부산떡방앗간",
+        "genre":  [
+                      "軽食・屋台グルメ"
+                  ],
+        "menu":  "カレトク他 餅",
+        "source":  "隣の国のグルメイト",
+        "notes":  "餅製造・販売",
+        "address_road":  "부산 강서구 제도로 1205",
+        "address_lot":  "부산 강서구 강동동 112-13",
+        "naver_url":  "https://naver.me/52cCFRgl",
+        "google_url":  null,
+        "lat":  35.1888719,
+        "lon":  128.9212789,
+        "geo_precision":  "road_address"
+    },
+    {
+        "id":  "b104",
+        "seq":  60,
+        "type":  "food",
+        "visited":  true,
+        "line":  "1",
+        "area_ja":  "南浦",
+        "area_ko":  "",
+        "name":  "원산면옥",
+        "genre":  [
+                      "麺類"
+                  ],
+        "menu":  "平壌冷麺 ハムン冷麺",
+        "source":  null,
+        "notes":  "水嚢さんお気に入り",
+        "address_road":  "부산 중구 광복로 56-8",
+        "address_lot":  "부산 중구 창선동1가 37-1",
+        "naver_url":  "https://naver.me/GCvqFIzb",
+        "google_url":  null,
+        "lat":  35.09954,
+        "lon":  129.03045,
         "geo_precision":  "lot_address"
+    },
+    {
+        "id":  "b105",
+        "seq":  61,
+        "type":  "spot",
+        "visited":  true,
+        "line":  "1",
+        "area_ja":  "南浦",
+        "area_ko":  "",
+        "name":  "釜山観光ホテル",
+        "genre":  [
+                      "ホテル"
+                  ],
+        "menu":  "ホテル",
+        "source":  null,
+        "notes":  "2025.5月宿泊",
+        "address_road":  "부산 중구 광복로97번길 23",
+        "address_lot":  "부산 중구 동광동2가 12-1",
+        "naver_url":  "https://naver.me/xmxICkDT",
+        "google_url":  null,
+        "lat":  35.1001982,
+        "lon":  129.0347974,
+        "geo_precision":  "road_address"
+    },
+    {
+        "id":  "b106",
+        "seq":  62,
+        "type":  "food",
+        "visited":  false,
+        "line":  "1",
+        "area_ja":  "南浦",
+        "area_ko":  "",
+        "name":  "공순대",
+        "genre":  [
+                      "軽食・屋台グルメ"
+                  ],
+        "menu":  "マクチャンスンデ",
+        "source":  "老舗食堂の営業秘密",
+        "notes":  "北式 マクチャン(豚テッポウ)スンデ 春雨なし",
+        "address_road":  "부산 중구 중구로29번길 18-5",
+        "address_lot":  "부산 중구 부평동1가 29-27",
+        "naver_url":  "https://naver.me/FoENnUCN",
+        "google_url":  null,
+        "lat":  35.1004745,
+        "lon":  129.0264592,
+        "geo_precision":  "road_address"
+    },
+    {
+        "id":  "b107",
+        "seq":  63,
+        "type":  "food",
+        "visited":  false,
+        "line":  "1",
+        "area_ja":  "南浦",
+        "area_ko":  "",
+        "name":  "원조바다집",
+        "genre":  [
+                      "鍋・チゲ",
+                      "海鮮・刺身"
+                  ],
+        "menu":  "水中鍋",
+        "source":  "老舗食堂の営業秘密",
+        "notes":  "ここだけの鍋 水中鍋:海老+ナクチ+貝",
+        "address_road":  "부산 중구 광복로43번길 18-5",
+        "address_lot":  "부산 중구 신창동2가 17-13",
+        "naver_url":  "https://naver.me/5k7f5HCd",
+        "google_url":  null,
+        "lat":  35.1003591,
+        "lon":  129.0296819,
+        "geo_precision":  "road_address"
     }
 ];
 
@@ -1439,5 +1601,11 @@ const STATIONS = [
         "area_ja":  "海雲台",
         "area_ko":  "해운대",
         "order":  22
+    },
+    {
+        "line":  "BGL",
+        "area_ja":  "大沙",
+        "area_ko":  "대사",
+        "order":  23
     }
 ];
